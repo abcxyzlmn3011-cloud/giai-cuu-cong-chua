@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Giải Cứu Công Chúa - Phép Trừ Có Nhớ Qua 10</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @keyframes bounce-slow {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-8px); }
+    }
+    .animate-bounce-slow { animation: bounce-slow 2s infinite ease-in-out; }
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      20%, 60% { transform: translateX(-8px); }
+      40%, 80% { transform: translateX(8px); }
+    }
+    .shake { animation: shake 0.4s ease-in-out; }
+    .key-btn {
+      touch-action: manipulation;
+      transition: all 0.08s ease;
+      box-shadow: 0 5px 0 #ca8a04;
+    }
+    .key-btn:active {
+      transform: translateY(4px);
+      box-shadow: 0 1px 0 #ca8a04;
+    }
+  </style>
+</head>
+<body class="bg-gradient-to-b from-indigo-950 via-slate-900 to-sky-950 min-h-screen text-white font-sans flex flex-col justify-between p-3 select-none">
+
+  <!-- HEADER -->
+  <header class="max-w-3xl mx-auto w-full flex items-center justify-between border-b border-pink-500/40 pb-2">
+    <div class="flex items-center space-x-2">
+      <span class="text-3xl animate-bounce">👸</span>
+      <div>
+        <h1 class="text-xl sm:text-2xl font-black text-amber-400 tracking-wider">GIẢI CỨU CÔNG CHÚA</h1>
+        <p class="text-xs text-pink-300">Vượt qua 8 ải phong ấn toán học để cứu công chúa 🏰✨</p>
+      </div>
+    </div>
+    <div class="flex items-center gap-3 bg-indigo-900/60 px-3 py-1.5 rounded-xl border border-indigo-500/40">
+      <div class="text-right">
+        <div class="text-[10px] uppercase text-indigo-300 font-semibold">Điểm số</div>
+        <div id="score-val" class="text-lg font-black text-yellow-300">0</div>
+      </div>
+      <button onclick="resetGame()" class="text-xs bg-red-600/80 hover:bg-red-500 px-2 py-1 rounded text-white font-bold">Chơi lại ↺</button>
+    </div>
+  </header>
+
+  <!-- THANH VẬT PHẨM ĐÃ THU THẬP -->
+  <div class="max-w-3xl mx-auto w-full my-2 bg-indigo-950/80 p-2.5 rounded-2xl border border-indigo-700/60 shadow-lg">
+    <div class="flex items-center justify-between text-xs text-indigo-300 mb-1.5 font-bold">
+      <span class="text-amber-300">TÚI BẢO VẬT HIỆP SĨ:</span>
+      <span id="stage-badge" class="bg-pink-500/20 text-pink-300 border border-pink-500/40 px-2 py-0.5 rounded-full">Ải 1 / 8</span>
+    </div>
+    <div id="inventory-grid" class="grid grid-cols-8 gap-1.5 sm:gap-2">
+      <!-- 8 Bảo vật nạp bằng JS -->
+    </div>
+  </div>
+
+  <!-- KHU VỰC THỬ THÁCH GIẢI PHONG ẤN -->
+  <main class="max-w-xl mx-auto w-full bg-slate-900/90 border-2 border-indigo-500/60 rounded-3xl p-4 sm:p-6 shadow-2xl relative flex flex-col items-center">
+    
+    <!-- Thanh tiến trình của Ải hiện tại -->
+    <div class="w-full flex items-center justify-between mb-2 text-xs font-semibold text-indigo-300">
+      <span id="question-progress">Phong ấn 1/8</span>
+      <span id="wrong-count-box" class="text-red-400 font-bold hidden">⚠️ Sai câu này: <span id="wrong-val">0</span></span>
+    </div>
+    <div class="w-full bg-slate-800 rounded-full h-2 mb-4 overflow-hidden border border-slate-700">
+      <div id="progress-bar" class="bg-gradient-to-r from-pink-400 to-amber-300 h-full w-0 transition-all duration-300"></div>
+    </div>
+
+    <!-- BẢNG PHÉP TÍNH PHONG ẤN -->
+    <div id="board-container" class="w-full bg-gradient-to-b from-indigo-900/70 to-slate-800/80 rounded-2xl border-2 border-amber-400/50 p-4 sm:p-6 text-center shadow-inner mb-4 transition-transform">
+      <div class="text-xs uppercase tracking-widest text-indigo-300 font-bold mb-1" id="stage-desc">ẢI 1: TÌM BẢN ĐỒ CỔ</div>
+      <div class="flex items-center justify-center gap-3 sm:gap-4 font-black text-4xl sm:text-6xl text-white tracking-wide">
+        <span id="math-num1" class="text-sky-300">11</span>
+        <span class="text-amber-400">-</span>
+        <span id="math-num2" class="text-pink-300">5</span>
+        <span class="text-amber-400">=</span>
+        <div id="answer-slot" class="w-16 h-14 sm:w-20 sm:h-18 border-b-4 border-amber-400 bg-indigo-950/80 rounded-lg flex items-center justify-center text-yellow-300 font-mono">?</div>
+      </div>
+    </div>
+
+    <!-- BÀN PHÍM CẢM ỨNG MÀU VÀNG -->
+    <div class="w-full max-w-sm grid grid-cols-3 gap-2 sm:gap-2.5">
+      <button onclick="pressDigit(1)" class="key-btn bg-amber-400 text-slate-900 font-black text-2xl py-3 rounded-xl border border-yellow-200">1</button>
+      <button onclick="pressDigit(2)" class="key-btn bg-amber-400 text-slate-900 font-black text-2xl py-3 rounded-xl border border-yellow-200">2</button>
+      <button onclick="pressDigit(3)" class="key-btn bg-amber-400 text-slate-900 font-black text-2xl py-3 rounded-xl border border-yellow-200">3</button>
+      <button onclick="pressDigit(4)" class="key-btn bg-amber-400 text-slate-900 font-black text-2xl py-3 rounded-xl border border-yellow-200">4</button>
+      <button onclick="pressDigit(5)" class="key-btn bg-amber-400 text-slate-900 font-black text-2xl py-3 rounded-xl border border-yellow-200">5</button>
+      <button onclick="pressDigit(6)" class="key-btn bg-amber-400 text-slate-900 font-black text-2xl py-3 rounded-xl border border-yellow-200">6</button>
+      <button onclick="pressDigit(7)" class="key-btn bg-amber-400 text-slate-900 font-black text-2xl py-3 rounded-xl border border-yellow-200">7</button>
+      <button onclick="pressDigit(8)" class="key-btn bg-amber-400 text-slate-900 font-black text-2xl py-3 rounded-xl border border-yellow-200">8</button>
+      <button onclick="pressDigit(9)" class="key-btn bg-amber-400 text-slate-900 font-black text-2xl py-3 rounded-xl border border-yellow-200">9</button>
+      
+      <button onclick="clearDigit()" class="key-btn bg-amber-500 text-amber-950 font-bold text-lg py-3 rounded-xl border border-amber-300">XÓA</button>
+      <button onclick="pressDigit(0)" class="key-btn bg-amber-400 text-slate-900 font-black text-2xl py-3 rounded-xl border border-yellow-200">0</button>
+      <button onclick="submitAnswer()" class="key-btn bg-yellow-400 text-emerald-950 font-black text-lg py-3 rounded-xl border border-yellow-100 flex items-center justify-center gap-1 shadow-[0_5px_0_#b45309]">GỬI ✔</button>
+    </div>
+  </main>
+
+  <footer class="text-center text-xs text-indigo-400/80 mt-2">
+    Bấm số trực tiếp trên màn hình • Đúng nhận +2 điểm • Thu thập đủ 8 vật phẩm để giải cứu công chúa
+  </footer>
+
+  <!-- MODAL: NHẬN BẢO VẬT KHI VƯỢT ẢI -->
+  <div id="reward-modal" class="fixed inset-0 bg-black/85 backdrop-blur-md flex items-center justify-center p-4 z-50 hidden">
+    <div class="bg-gradient-to-b from-indigo-900 to-slate-900 border-2 border-amber-400 rounded-3xl p-6 max-w-sm w-full text-center shadow-2xl animate-bounce-slow">
+      <div class="text-xs uppercase tracking-widest text-pink-300 font-bold">MỞ KHÓA BẢO VẬT MỚI!</div>
+      <div id="reward-icon" class="text-7xl my-3 filter drop-shadow-[0_0_15px_rgba(251,191,36,0.6)]">🗺️</div>
+      <h3 id="reward-title" class="text-2xl font-black text-amber-400 mb-1">Bản Đồ Cổ</h3>
+      <p id="reward-desc" class="text-sm text-indigo-200 mb-6">Bạn vừa phá vỡ phong ấn thành công! Hãy tiếp tục tiến bước giải cứu công chúa.</p>
+      <button onclick="nextStage()" class="w-full bg-gradient-to-r from-amber-400 to-yellow-400 text-slate-900 font-black py-3 rounded-2xl text-lg shadow-[0_6px_0_#b45309] hover:brightness-110 active:translate-y-1">TIẾN VÀO ẢI TIẾP THEO ➔</button>
+    </div>
+  </div>
+
+  <!-- MODAL: CHIẾN THẮNG CUỐI CÙNG - CÔNG CHÚA ĐƯỢC GIẢI CỨU -->
+  <div id="victory-modal" class="fixed inset-0 bg-black/90 backdrop-blur-lg flex items-center justify-center p-4 z-50 hidden">
+    <div class="bg-gradient-to-b from-pink-950 via-indigo-950 to-slate-950 border-4 border-yellow-400 rounded-3xl p-6 sm:p-8 max-w-md w-full text-center shadow-2xl">
+      <div class="text-7xl mb-2 animate-bounce">👸💖👑</div>
+      <h2 class="text-3xl sm:text-4xl font-black text-amber-400 mb-2 tracking-wide">GIẢI CỨU THÀNH CÔNG!</h2>
+      <p class="text-indigo-200 text-sm mb-4">Hoan hô Dũng sĩ! Bạn đã phá tan toàn bộ 8 tầng phong ấn phép trừ qua 10 và giải cứu Công Chúa về vương quốc bình an!</p>
+      
+      <div class="bg-slate-900/80 border border-amber-500/40 rounded-2xl p-4 mb-6">
+        <div class="text-xs text-indigo-300">TỔNG ĐIỂM DŨNG SĨ ĐẠT ĐƯỢC</div>
+        <div id="final-score" class="text-4xl font-black text-yellow-300 mt-1">72</div>
+      </div>
+
+      <button onclick="resetGame()" class="w-full bg-gradient-to-r from-emerald-500 to-teal-400 text-white font-black py-3.5 rounded-2xl text-lg shadow-[0_6px_0_#0f766e] hover:brightness-110 active:translate-y-1">CHƠI LƯỢT MỚI ↺</button>
+    </div>
+  </div>
+
+  <canvas id="confetti-canvas" class="fixed inset-0 pointer-events-none z-40"></canvas>
+
+  <script>
+    // WEB AUDIO API - TỔNG HỢP ÂM THANH
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    function playBeep(type) {
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+
+      if (type === 'press') {
+        osc.frequency.setValueAtTime(450, audioCtx.currentTime);
+        gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.06);
+        osc.start(); osc.stop(audioCtx.currentTime + 0.06);
+      } else if (type === 'correct') {
+        const notes = [523.25, 659.25, 783.99]; // C5, E5, G5
+        notes.forEach((freq, idx) => {
+          setTimeout(() => {
+            const o = audioCtx.createOscillator();
+            const g = audioCtx.createGain();
+            o.type = 'triangle';
+            o.frequency.setValueAtTime(freq, audioCtx.currentTime);
+            g.gain.setValueAtTime(0.2, audioCtx.currentTime);
+            g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.3);
+            o.connect(g); g.connect(audioCtx.destination);
+            o.start(); o.stop(audioCtx.currentTime + 0.3);
+          }, idx * 80);
+        });
+      } else if (type === 'wrong') {
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(160, audioCtx.currentTime);
+        osc.frequency.linearRampToValueAtTime(90, audioCtx.currentTime + 0.25);
+        gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.25);
+        osc.start(); osc.stop(audioCtx.currentTime + 0.25);
+      } else if (type === 'win') {
+        const fanfare = [523.25, 659.25, 783.99, 1046.5];
+        fanfare.forEach((f, i) => {
+          setTimeout(() => {
+            const o = audioCtx.createOscillator();
+            const g = audioCtx.createGain();
+            o.type = 'sine';
+            o.frequency.setValueAtTime(f, audioCtx.currentTime);
+            g.gain.setValueAtTime(0.25, audioCtx.currentTime);
+            g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.5);
+            o.connect(g); g.connect(audioCtx.destination);
+            o.start(); o.stop(audioCtx.currentTime + 0.5);
+          }, i * 140);
+        });
+      }
+    }
+
+    // CẤU HÌNH 8 ẢI
+    const STAGE_CONFIG = [
+      { id: 1, base: 11, minSub: 2, maxSub: 9, reward: { icon: "🗺️", name: "Bản Đồ Cổ" } },
+      { id: 2, base: 12, minSub: 3, maxSub: 9, reward: { icon: "👢", name: "Giày Thần Tốc" } },
+      { id: 3, base: 13, minSub: 4, maxSub: 9, reward: { icon: "🛡️", name: "Khiên Dũng Sĩ" } },
+      { id: 4, base: 14, minSub: 5, maxSub: 9, reward: { icon: "⚔️", name: "Kiếm Ánh Sáng" } },
+      { id: 5, base: 15, minSub: 6, maxSub: 9, reward: { icon: "🦺", name: "Áo Giáp Vàng" } },
+      { id: 6, base: 16, minSub: 7, maxSub: 9, reward: { icon: "🧪", name: "Thuốc Thần Kỳ" } },
+      { id: 7, base: 17, minSub: 8, maxSub: 9, reward: { icon: "🗝️", name: "Chìa Khóa Vàng" } },
+      { id: 8, base: 18, minSub: 9, maxSub: 9, reward: { icon: "👑", name: "Vương Miện Cứu Công Chúa" } }
+    ];
+
+    let currentStageIdx = 0;
+    let questionsInCurrentStage = [];
+    let currentQuestionIdx = 0;
+    let currentInput = "";
+    let score = 0;
+    let wrongAttemptsThisQ = 0;
+    let unlockedItems = [];
+
+    // XÁO TRỘN NGẪU NHIÊN CÁC PHÉP TRỪ
+    function shuffle(arr) {
+      const copy = [...arr];
+      for (let i = copy.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [copy[i], copy[j]] = [copy[j], copy[i]];
+      }
+      return copy;
+    }
+
+    function initInventoryUI() {
+      const grid = document.getElementById("inventory-grid");
+      grid.innerHTML = "";
+      STAGE_CONFIG.forEach((cfg, idx) => {
+        const itemBox = document.createElement("div");
+        itemBox.id = `inv-item-${idx}`;
+        itemBox.className = "flex flex-col items-center justify-center p-1.5 rounded-xl border bg-slate-900/60 border-slate-700/80 text-center transition-all";
+        itemBox.innerHTML = `
+          <div class="text-xl sm:text-2xl opacity-20 filter grayscale">${cfg.reward.icon}</div>
+          <div class="text-[9px] text-slate-400 font-bold truncate w-full mt-0.5">Ải ${cfg.id}</div>
+        `;
+        grid.appendChild(itemBox);
+      });
+    }
+
+    function updateInventoryUI() {
+      STAGE_CONFIG.forEach((cfg, idx) => {
+        const el = document.getElementById(`inv-item-${idx}`);
+        if (unlockedItems.includes(idx)) {
+          el.className = "flex flex-col items-center justify-center p-1.5 rounded-xl border bg-amber-500/20 border-amber-400 text-center shadow-[0_0_10px_rgba(251,191,36,0.3)] animate-pulse";
+          el.innerHTML = `
+            <div class="text-xl sm:text-2xl">${cfg.reward.icon}</div>
+            <div class="text-[9px] text-amber-300 font-bold truncate w-full mt-0.5">${cfg.reward.name}</div>
+          `;
+        }
+      });
+    }
+
+    function buildQuestionsForStage(stageIdx) {
+      const cfg = STAGE_CONFIG[stageIdx];
+      const list = [];
+      for (let sub = cfg.minSub; sub <= cfg.maxSub; sub++) {
+        list.push({ num1: cfg.base, num2: sub, ans: cfg.base - sub });
+      }
+      return shuffle(list);
+    }
+
+    function loadStage(stageIdx) {
+      currentStageIdx = stageIdx;
+      questionsInCurrentStage = buildQuestionsForStage(stageIdx);
+      currentQuestionIdx = 0;
+      wrongAttemptsThisQ = 0;
+
+      const cfg = STAGE_CONFIG[stageIdx];
+      document.getElementById("stage-badge").innerText = `Ải ${cfg.id} / 8`;
+      document.getElementById("stage-desc").innerText = `ẢI ${cfg.id}: GIẢI PHONG ẤN PHÉP TRỪ ${cfg.base}`;
+
+      loadQuestion();
+    }
+
+    function loadQuestion() {
+      currentInput = "";
+      wrongAttemptsThisQ = 0;
+      document.getElementById("wrong-count-box").classList.add("hidden");
+      document.getElementById("answer-slot").innerText = "?";
+      document.getElementById("answer-slot").classList.remove("text-emerald-400", "text-red-400");
+      document.getElementById("answer-slot").classList.add("text-yellow-300");
+
+      const q = questionsInCurrentStage[currentQuestionIdx];
+      document.getElementById("math-num1").innerText = q.num1;
+      document.getElementById("math-num2").innerText = q.num2;
+
+      const totalQ = questionsInCurrentStage.length;
+      document.getElementById("question-progress").innerText = `Phong ấn ${currentQuestionIdx + 1} / ${totalQ}`;
+      const percent = (currentQuestionIdx / totalQ) * 100;
+      document.getElementById("progress-bar").style.width = `${percent}%`;
+    }
+
+    // BÀN PHÍM CẢM ỨNG
+    function pressDigit(d) {
+      playBeep('press');
+      if (currentInput.length >= 2) return;
+      currentInput += d.toString();
+      document.getElementById("answer-slot").innerText = currentInput;
+    }
+
+    function clearDigit() {
+      playBeep('press');
+      currentInput = "";
+      document.getElementById("answer-slot").innerText = "?";
+    }
+
+    function submitAnswer() {
+      if (currentInput === "") return;
+      const q = questionsInCurrentStage[currentQuestionIdx];
+      const val = parseInt(currentInput, 10);
+
+      if (val === q.ans) {
+        // ĐÚNG
+        playBeep('correct');
+        score += 2;
+        document.getElementById("score-val").innerText = score;
+        document.getElementById("answer-slot").classList.remove("text-yellow-300");
+        document.getElementById("answer-slot").classList.add("text-emerald-400");
+
+        currentQuestionIdx++;
+        if (currentQuestionIdx >= questionsInCurrentStage.length) {
+          setTimeout(completeStage, 400);
+        } else {
+          setTimeout(loadQuestion, 350);
+        }
+      } else {
+        // SAI
+        playBeep('wrong');
+        wrongAttemptsThisQ++;
+        document.getElementById("wrong-count-box").classList.remove("hidden");
+        document.getElementById("wrong-val").innerText = wrongAttemptsThisQ;
+
+        const board = document.getElementById("board-container");
+        board.classList.add("shake");
+        setTimeout(() => board.classList.remove("shake"), 400);
+
+        currentInput = "";
+        document.getElementById("answer-slot").innerText = "?";
+      }
+    }
+
+    function completeStage() {
+      unlockedItems.push(currentStageIdx);
+      updateInventoryUI();
+
+      const cfg = STAGE_CONFIG[currentStageIdx];
+
+      if (currentStageIdx === STAGE_CONFIG.length - 1) {
+        // Màn 8: Giải cứu công chúa thành công
+        playBeep('win');
+        triggerConfetti();
+        document.getElementById("final-score").innerText = score;
+        document.getElementById("victory-modal").classList.remove("hidden");
+      } else {
+        // Nhận bảo vật vượt ải
+        playBeep('win');
+        document.getElementById("reward-icon").innerText = cfg.reward.icon;
+        document.getElementById("reward-title").innerText = cfg.reward.name;
+        document.getElementById("reward-desc").innerText = `Xuất sắc! Bạn đã vượt qua Ải ${cfg.id} và thu nạp ${cfg.reward.name} vào hành trang!`;
+        document.getElementById("reward-modal").classList.remove("hidden");
+      }
+    }
+
+    function nextStage() {
+      document.getElementById("reward-modal").classList.add("hidden");
+      loadStage(currentStageIdx + 1);
+    }
+
+    function resetGame() {
+      document.getElementById("reward-modal").classList.add("hidden");
+      document.getElementById("victory-modal").classList.add("hidden");
+      score = 0;
+      document.getElementById("score-val").innerText = "0";
+      unlockedItems = [];
+      initInventoryUI();
+      loadStage(0);
+    }
+
+    // HIỆU ỨNG PHÁO HOA ĂN MỪNG
+    function triggerConfetti() {
+      const canvas = document.getElementById("confetti-canvas");
+      const ctx = canvas.getContext("2d");
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+
+      const particles = [];
+      const colors = ["#f59e0b", "#ec4899", "#3b82f6", "#10b981", "#8b5cf6", "#fbbf24"];
+      for (let i = 0; i < 120; i++) {
+        particles.push({
+          x: canvas.width / 2,
+          y: canvas.height / 2,
+          r: Math.random() * 6 + 3,
+          color: colors[Math.floor(Math.random() * colors.length)],
+          vx: (Math.random() - 0.5) * 16,
+          vy: (Math.random() - 0.5) * 16 - 3,
+          gravity: 0.25,
+          alpha: 1
+        });
+      }
+
+      function render() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        let alive = false;
+        particles.forEach(p => {
+          p.x += p.vx;
+          p.y += p.vy;
+          p.vy += p.gravity;
+          p.alpha -= 0.008;
+          if (p.alpha > 0) {
+            alive = true;
+            ctx.save();
+            ctx.globalAlpha = p.alpha;
+            ctx.fillStyle = p.color;
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.restore();
+          }
+        });
+        if (alive) requestAnimationFrame(render);
+      }
+      render();
+    }
+
+    // Khởi động trò chơi
+    initInventoryUI();
+    loadStage(0);
+  </script>
+</body>
+</html>
